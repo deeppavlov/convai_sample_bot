@@ -7,11 +7,11 @@ git clone https://github.com/seliverstov/convai_sample_bot/
 cd convai_sample_bot
 pip install
 ```
-## Edit bot.py and enter your bot token (id)
+## Edit bot.py and enter your bot id
 ```python
 def main():
     """
-    !!!!!!! Put your bot token (id) here !!!!!!!
+    !!!!!!! Put your bot id here !!!!!!!
     """
     BOT_ID = None
 ```
