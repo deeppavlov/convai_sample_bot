@@ -85,7 +85,7 @@ class ConvAISampleBot:
 def main():
 
     """
-    !!!!!!! Put your bot token (id) here !!!!!!!
+    !!!!!!! Put your bot id here !!!!!!!
     """
     BOT_ID = None
 
