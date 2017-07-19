@@ -5,7 +5,7 @@ Bot demonstrates how to use RouterBot API to communicate with telegram users. Bo
 ```sh
 git clone https://github.com/seliverstov/convai_sample_bot/
 cd convai_sample_bot
-pip install
+pip install -r requirements.txt
 ```
 ## Edit bot.py and enter your bot id
 ```python
