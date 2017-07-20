@@ -28,27 +28,37 @@ class ConvAISampleBot:
         self.observation = None
 
     def observe(self, m):
-        if self.chat_id is None and m['message']['text'].startswith('/start '):
-            self.chat_id = m['message']['chat']['id']
-            print("Start new chat #%s" % self.chat_id)
-        elif self.chat_id is not None and m['message']['text'] == '/end':
-            print("End chat #%s" % self.chat_id)
-            self.chat_id = None
-            self.observation = None
-            return
-
+        print("Observe:")
         if self.chat_id is None:
-            print("Dialog not started yet. Ignore message.")
-        elif m['message']['chat']['id'] == self.chat_id:
-            print("Accept message as part of chat #%s" % self.chat_id)
-            self.observation = m['message']['text']
-            return self.observation
+            if m['message']['text'].startswith('/start '):
+                self.chat_id = m['message']['chat']['id']
+                self.observation = m['message']['text']
+                print("\tStart new chat #%s" % self.chat_id)
+            else:
+                self.observation = None
+                print("\tChat not started yet. Ignore message")
         else:
-            print("Multiple dialogues are not allowed. Ignore message.")
+            if self.chat_id == m['message']['chat']['id']:
+                if m['message']['text'] == '/end':
+                    self.observation = None
+                    print("\tEnd chat #%s" % self.chat_id)
+                    self.chat_id = None
+                else:
+                    self.observation = m['message']['text']
+                    print("\tAccept message as part of chat #%s: %s" % (self.chat_id, self.observation))
+            else:
+                self.observation = None
+                print("\tOnly one chat is allowed at a time. Ignore message from different chat #%s" % m['message']['chat']['id'])
+        return self.observation
 
     def act(self):
+        print("Act:")
         if self.chat_id is None:
-            print("Dialog not started yet. Do not act.")
+            print("\tChat not started yet. Do not act.")
+            return
+
+        if self.observation is None:
+            print("\tNo new messages for chat #%s. Do not act." % self.chat_id)
             return
 
         message = {
@@ -60,10 +70,10 @@ class ConvAISampleBot:
 
         data = {}
         if text == '':
-            print("Decided to do not respond and wait for new message")
+            print("\tDecide to do not respond and wait for new message")
             return
         elif text == '/end':
-            print("Decided to finish chat %s" % self.chat_id)
+            print("\tDecide to finish chat %s" % self.chat_id)
             self.chat_id = None
             data['text'] = '/end'
             data['evaluation'] = {
@@ -72,7 +82,7 @@ class ConvAISampleBot:
                 'engagement': 0
             }
         else:
-            print("Decided to respond with text: %s" % text)
+            print("\tDecide to respond with text: %s" % text)
             data = {
                 'text': text,
                 'evaluation': 0
@@ -92,33 +102,36 @@ def main():
     if BOT_ID is None:
         raise Exception('You should enter your bot token/id!')
 
-    BOT_URL = os.path.join('https://convaibot.herokuapp.com/', BOT_ID)
+    BOT_URL = os.path.join('https://ipavlov.mipt.ru/nipsrouter/', BOT_ID)
 
     bot = ConvAISampleBot()
 
     while True:
-        print("Get updates from server")
-        res = requests.get(os.path.join(BOT_URL, 'getUpdates'))
+        try:
+            time.sleep(1)
+            print("Get updates from server")
+            res = requests.get(os.path.join(BOT_URL, 'getUpdates'))
 
-        if res.status_code != 200:
-            print(res.text)
-            res.raise_for_status()
+            if res.status_code != 200:
+                print(res.text)
+                res.raise_for_status()
 
-        print("Got %s new messages" % len(res.json()))
-        for m in res.json():
-            print("Process message %s" % m)
-            bot.observe(m)
-            new_message = bot.act()
-            if new_message is not None:
-                print("Send response to server.")
-                res = requests.post(os.path.join(BOT_URL, 'sendMessage'),
-                                    json=new_message,
-                                    headers={'Content-Type': 'application/json'})
-                if res.status_code != 200:
-                    print(res.text)
-                    res.raise_for_status()
-        print("Sleep for 1 sec. before new try")
-        time.sleep(1)
+            print("Got %s new messages" % len(res.json()))
+            for m in res.json():
+                print("Process message %s" % m)
+                bot.observe(m)
+                new_message = bot.act()
+                if new_message is not None:
+                    print("Send response to server.")
+                    res = requests.post(os.path.join(BOT_URL, 'sendMessage'),
+                                        json=new_message,
+                                        headers={'Content-Type': 'application/json'})
+                    if res.status_code != 200:
+                        print(res.text)
+                        res.raise_for_status()
+            print("Sleep for 1 sec. before new try")
+        except Exception as e:
+            print("Exception: {}".format(e))
 
 
 if __name__ == '__main__':
