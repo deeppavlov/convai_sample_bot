@@ -102,7 +102,7 @@ def main():
     if BOT_ID is None:
         raise Exception('You should enter your bot token/id!')
 
-    BOT_URL = os.path.join('https://ipavlov.mipt.ru/nipsrouter/', BOT_ID)
+    BOT_URL = os.path.join('https://convaibot.herokuapp.com/', BOT_ID)
 
     bot = ConvAISampleBot()
 
