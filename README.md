@@ -7,17 +7,10 @@ git clone https://github.com/seliverstov/convai_sample_bot/
 cd convai_sample_bot
 pip install -r requirements.txt
 ```
-## Edit bot.py and enter your bot id
-```python
-def main():
-    """
-    !!!!!!! Put your bot id here !!!!!!!
-    """
-    BOT_ID = None
-```
-## Run bot (python 3 required)
+## Run bot
+You should run `bot.py` with your bot id in command line:
 ```sh
-python bot.py
+BOT_ID=<YOUR_BOT_ID> python3 bot.py
 ```
 ## Start chattings
 Open telegram client, find @ConvaiBot (convai-bot), send "/test PUT_YOUR_BOT_ID_HERE" to start chatting with your own bot
