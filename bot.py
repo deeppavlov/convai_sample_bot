@@ -97,7 +97,7 @@ def main():
     """
     !!!!!!! Put your bot id here !!!!!!!
     """
-    BOT_ID = None
+    BOT_ID = os.environ.get('BOT_ID')
 
     if BOT_ID is None:
         raise Exception('You should enter your bot token/id!')
